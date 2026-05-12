@@ -68,4 +68,13 @@
     window.scrollBy(dx, dy);
     e.preventDefault();
   }, { passive: false });
+
+  // Hide the scrollbar thumb entirely when the window is not focused —
+  // matches Nautilus / GNOME overlay scrollbar behavior.
+  function setBlurredFlag(blurred) {
+    document.documentElement.classList.toggle('mp-blurred', blurred);
+  }
+  window.addEventListener('blur',  function () { setBlurredFlag(true);  });
+  window.addEventListener('focus', function () { setBlurredFlag(false); });
+  setBlurredFlag(!document.hasFocus());
 })();

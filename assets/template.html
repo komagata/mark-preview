@@ -8,17 +8,44 @@
 <link rel="stylesheet" href="__ASSETS_URL__/katex/katex.min.css">
 <link rel="stylesheet" href="__ASSETS_URL__/highlight/__HLJS_CSS__">
 <style>
-html { background-color: #ffffff; overflow-y: scroll; }
-html[data-theme="dark"] { background-color: #0d1117; }
+html { background-color: #ffffff; overflow-y: scroll; color-scheme: light; }
+html[data-theme="dark"] { background-color: #0d1117; color-scheme: dark; }
 html, body { margin: 0; padding: 0; }
 body { box-sizing: border-box; padding: 32px 48px; }
 .markdown-body { box-sizing: border-box; max-width: 980px; margin: 0 auto; }
 .mermaid { background: transparent; text-align: center; margin: 16px 0; }
-/* Force a visible scrollbar on WebKit2GTK so users see the document is scrollable. */
-::-webkit-scrollbar { width: 14px; height: 14px; }
-::-webkit-scrollbar-track { background: rgba(127,127,127,0.08); }
-::-webkit-scrollbar-thumb { background: rgba(127,127,127,0.45); border-radius: 7px; border: 3px solid transparent; background-clip: padding-box; }
-::-webkit-scrollbar-thumb:hover { background: rgba(127,127,127,0.7); border-radius: 7px; border: 3px solid transparent; background-clip: padding-box; }
+/* Nautilus-style overlay scrollbar: invisible by default, faintly visible
+   when the cursor is anywhere in the document, brighter on direct hover,
+   completely hidden when the window loses focus. */
+::-webkit-scrollbar { width: 10px; height: 10px; background-color: transparent; }
+::-webkit-scrollbar-track { background-color: transparent; box-shadow: none; }
+::-webkit-scrollbar-track-piece { background-color: transparent; }
+::-webkit-scrollbar-button { display: none; width: 0; height: 0; }
+::-webkit-scrollbar-corner { background-color: transparent; }
+::-webkit-resizer { display: none; }
+::-webkit-scrollbar-thumb {
+  background: transparent;
+  border-radius: 5px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+  transition: background-color 150ms ease;
+}
+html:hover ::-webkit-scrollbar-thumb {
+  background: rgba(127,127,127,0.32);
+  background-clip: padding-box;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(127,127,127,0.58) !important;
+  background-clip: padding-box;
+}
+::-webkit-scrollbar-thumb:active {
+  background: rgba(127,127,127,0.78) !important;
+  background-clip: padding-box;
+}
+html.mp-blurred ::-webkit-scrollbar-thumb {
+  background: transparent !important;
+}
+::-webkit-scrollbar-corner { background: transparent; }
 </style>
 </head>
 <body>

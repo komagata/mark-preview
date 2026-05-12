@@ -32,7 +32,7 @@ private:
         ID_ABOUT = wxID_ABOUT,
     };
 
-    void BuildMenuBar();
+    void BuildAccelerators();
     void Reload(bool keep_scroll = true);
     void ShowWelcome();
     void LoadHtmlPage(const std::string& html);

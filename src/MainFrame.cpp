@@ -1,8 +1,6 @@
 #include "MainFrame.h"
 #include "Resources.h"
 
-#include <wx/menu.h>
-#include <wx/menuitem.h>
 #include <wx/sizer.h>
 #include <wx/statusbr.h>
 
@@ -70,7 +68,7 @@ kbd { font-family: ui-monospace, monospace; background: rgba(127,127,127,0.15);
 
 MainFrame::MainFrame()
     : wxFrame(nullptr, wxID_ANY, kAppName, wxDefaultPosition, wxSize(1000, 800)) {
-    BuildMenuBar();
+    BuildAccelerators();
     CreateStatusBar(2);
     int widths[] = { -3, -1 };
     SetStatusWidths(2, widths);
@@ -139,33 +137,24 @@ MainFrame::MainFrame()
     CallAfter([this]{ if (current_path_.empty()) ShowWelcome(); });
 }
 
-void MainFrame::BuildMenuBar() {
-    wxMenuBar* bar = new wxMenuBar();
-
-    wxMenu* file_menu = new wxMenu();
-    file_menu->Append(ID_OPEN,       "&Open...\tCtrl+O");
-    file_menu->Append(ID_RELOAD,     "&Reload\tCtrl+R");
-    file_menu->Append(ID_CLOSE_FILE, "&Close\tCtrl+W");
-    file_menu->AppendSeparator();
-    file_menu->Append(ID_QUIT,       "&Quit\tCtrl+Q");
-    bar->Append(file_menu, "&File");
-
-    wxMenu* view_menu = new wxMenu();
-    view_menu->Append(ID_ZOOM_IN,    "Zoom &In\tCtrl++");
-    view_menu->Append(ID_ZOOM_OUT,   "Zoom &Out\tCtrl+-");
-    view_menu->Append(ID_ZOOM_RESET, "&Reset Zoom\tCtrl+0");
-    bar->Append(view_menu, "&View");
-
-    wxMenu* help_menu = new wxMenu();
-    help_menu->Append(ID_ABOUT, "&About");
-    bar->Append(help_menu, "&Help");
-
-    SetMenuBar(bar);
-
-    // Extra accelerator for Ctrl+= so users without Shift can zoom in.
-    wxAcceleratorEntry entries[1];
-    entries[0].Set(wxACCEL_CTRL, (int)'=', ID_ZOOM_IN);
-    SetAcceleratorTable(wxAcceleratorTable(1, entries));
+void MainFrame::BuildAccelerators() {
+    // No menu bar — keep the viewer chrome minimal like Omarchy's image
+    // preview. All commands are reachable via keyboard shortcuts.
+    wxAcceleratorEntry entries[] = {
+        { wxACCEL_CTRL, (int)'O', ID_OPEN },
+        { wxACCEL_CTRL, (int)'R', ID_RELOAD },
+        { wxACCEL_CTRL, (int)'W', ID_CLOSE_FILE },
+        { wxACCEL_CTRL, (int)'Q', ID_QUIT },
+        { wxACCEL_CTRL, (int)'=', ID_ZOOM_IN },       // bare +
+        { wxACCEL_CTRL | wxACCEL_SHIFT, (int)'=', ID_ZOOM_IN }, // Ctrl+Shift+= == Ctrl++
+        { wxACCEL_CTRL, WXK_NUMPAD_ADD,      ID_ZOOM_IN },
+        { wxACCEL_CTRL, (int)'-', ID_ZOOM_OUT },
+        { wxACCEL_CTRL, WXK_NUMPAD_SUBTRACT, ID_ZOOM_OUT },
+        { wxACCEL_CTRL, (int)'0', ID_ZOOM_RESET },
+        { wxACCEL_NORMAL, WXK_F1, ID_ABOUT },
+    };
+    constexpr int n = sizeof(entries) / sizeof(entries[0]);
+    SetAcceleratorTable(wxAcceleratorTable(n, entries));
 }
 
 void MainFrame::OpenFile(const wxString& path) {
