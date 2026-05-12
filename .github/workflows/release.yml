@@ -78,12 +78,14 @@ jobs:
           set -euxo pipefail
           git clone --depth 1 --branch 0.29.0.gfm.13 https://github.com/github/cmark-gfm.git /tmp/cmark-gfm
           cd /tmp/cmark-gfm
+          # Static build avoids cmark-gfm's inconsistent dll linkage warnings
+          # (treated as errors by MSVC /WX).
           cmake -B build -DCMAKE_BUILD_TYPE=Release \
             -DCMAKE_INSTALL_PREFIX="$GITHUB_WORKSPACE/cmark-gfm-install" \
-            -DCMARK_TESTS=OFF -DCMARK_SHARED=ON -DCMARK_STATIC=OFF
+            -DCMARK_TESTS=OFF -DCMARK_SHARED=OFF -DCMARK_STATIC=ON \
+            -DBUILD_SHARED_LIBS=OFF
           cmake --build build --config Release -j 2
           cmake --install build --config Release
-          ls -R "$GITHUB_WORKSPACE/cmark-gfm-install"
 
       # -------- Common: fetch bundled web assets --------
       - name: Fetch bundled assets
