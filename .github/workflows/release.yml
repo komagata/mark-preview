@@ -60,11 +60,25 @@ jobs:
         with:
           vcpkgGitCommitId: 80d54ff62d528339c626a6fbc3489a7f25956ade
 
-      - name: Install deps (Windows)
+      - name: Install wxWidgets (Windows / vcpkg)
         if: runner.os == 'Windows'
         shell: bash
         run: |
-          "$VCPKG_ROOT/vcpkg" install wxwidgets:x64-windows cmark-gfm:x64-windows
+          "$VCPKG_ROOT/vcpkg" install wxwidgets:x64-windows
+
+      - name: Build cmark-gfm from source (Windows)
+        if: runner.os == 'Windows'
+        shell: bash
+        run: |
+          set -euxo pipefail
+          git clone --depth 1 --branch 0.29.0.gfm.13 https://github.com/github/cmark-gfm.git /tmp/cmark-gfm
+          cd /tmp/cmark-gfm
+          cmake -B build -DCMAKE_BUILD_TYPE=Release \
+            -DCMAKE_INSTALL_PREFIX="$GITHUB_WORKSPACE/cmark-gfm-install" \
+            -DCMARK_TESTS=OFF -DCMARK_SHARED=ON -DCMARK_STATIC=OFF
+          cmake --build build --config Release -j 2
+          cmake --install build --config Release
+          ls -R "$GITHUB_WORKSPACE/cmark-gfm-install"
 
       # -------- Common: fetch bundled web assets --------
       - name: Fetch bundled assets
@@ -82,7 +96,8 @@ jobs:
         run: |
           cmake -B build -DCMAKE_BUILD_TYPE=Release \
             -DCMAKE_TOOLCHAIN_FILE="$VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake" \
-            -DVCPKG_TARGET_TRIPLET=x64-windows
+            -DVCPKG_TARGET_TRIPLET=x64-windows \
+            -DCMAKE_PREFIX_PATH="$GITHUB_WORKSPACE/cmark-gfm-install"
 
       - name: Build
         run: cmake --build build --config Release -j 2
@@ -159,8 +174,10 @@ jobs:
           mkdir staging
           cp build/Release/mark-preview.exe staging/
           cp LICENSE README.md staging/
-          # Copy required DLLs from vcpkg installed/x64-windows/bin
+          # Copy required DLLs from vcpkg installed/x64-windows/bin and our
+          # cmark-gfm install tree.
           cp "$VCPKG_ROOT/installed/x64-windows/bin/"*.dll staging/ || true
+          cp "$GITHUB_WORKSPACE/cmark-gfm-install/bin/"*.dll staging/ || true
           7z a "mark-preview-${{ matrix.id }}.zip" ./staging/*
 
       - name: Upload artifact
