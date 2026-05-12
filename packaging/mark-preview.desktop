@@ -10,6 +10,6 @@ Icon=mark-preview
 Terminal=false
 StartupNotify=true
 StartupWMClass=mark-preview
-Categories=Office;Viewer;Utility;
+Categories=Office;
 MimeType=text/markdown;text/x-markdown;
 Keywords=markdown;md;viewer;preview;

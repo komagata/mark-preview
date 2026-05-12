@@ -11,7 +11,17 @@ portable to macOS and Windows.
 
 See [SPEC.md](SPEC.md) for the full specification.
 
-## Build (Linux / Omarchy)
+## Install (Arch / Omarchy)
+
+```sh
+yay -S mark-preview-git        # or: paru -S mark-preview-git
+```
+
+That installs `/usr/bin/mark-preview` plus a `.desktop` entry so the app
+shows up in walker / GNOME / KDE launchers and is offered as an "Open with"
+target for `.md` files.
+
+## Build from source
 
 ```sh
 sudo pacman -S wxwidgets-gtk3 webkit2gtk cmark-gfm cmake pkgconf

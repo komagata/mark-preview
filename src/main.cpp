@@ -68,7 +68,7 @@ bool App::OnInit() {
 
     if (show_version_) {
         std::printf("mark-preview 0.1.0\n");
-        return false;
+        std::exit(0);
     }
 
     if (!Resources::Init()) {
