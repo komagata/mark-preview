@@ -1,0 +1,193 @@
+name: release
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-24.04
+            id: linux-x86_64
+            archive: AppImage
+          - os: macos-14
+            id: macos-arm64
+            archive: tar.gz
+          - os: macos-13
+            id: macos-x86_64
+            archive: tar.gz
+          - os: windows-2022
+            id: windows-x86_64
+            archive: zip
+
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      # -------- Linux --------
+      - name: Install deps (Linux)
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            libwxgtk-webview3.2-dev \
+            libwebkit2gtk-4.1-dev \
+            libcmark-gfm-dev \
+            libcmark-gfm-extensions-dev \
+            cmake pkg-config python3 curl jq \
+            file desktop-file-utils
+
+      # -------- macOS --------
+      - name: Install deps (macOS)
+        if: runner.os == 'macOS'
+        run: |
+          brew update
+          brew install wxwidgets cmark-gfm cmake pkg-config
+
+      # -------- Windows --------
+      - name: Setup vcpkg (Windows)
+        if: runner.os == 'Windows'
+        uses: lukka/run-vcpkg@v11
+        with:
+          vcpkgGitCommitId: 80d54ff62d528339c626a6fbc3489a7f25956ade
+
+      - name: Install deps (Windows)
+        if: runner.os == 'Windows'
+        shell: bash
+        run: |
+          "$VCPKG_ROOT/vcpkg" install wxwidgets:x64-windows cmark-gfm:x64-windows
+
+      # -------- Common: fetch bundled web assets --------
+      - name: Fetch bundled assets
+        shell: bash
+        run: ./scripts/fetch-assets.sh
+
+      # -------- Configure & build --------
+      - name: Configure (Linux/macOS)
+        if: runner.os != 'Windows'
+        run: cmake -B build -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr
+
+      - name: Configure (Windows)
+        if: runner.os == 'Windows'
+        shell: bash
+        run: |
+          cmake -B build -DCMAKE_BUILD_TYPE=Release \
+            -DCMAKE_TOOLCHAIN_FILE="$VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake" \
+            -DVCPKG_TARGET_TRIPLET=x64-windows
+
+      - name: Build
+        run: cmake --build build --config Release -j 2
+
+      # -------- Package: Linux AppImage --------
+      - name: Package AppImage (Linux)
+        if: runner.os == 'Linux'
+        shell: bash
+        run: |
+          set -euxo pipefail
+
+          # Stage install into AppDir
+          DESTDIR="$PWD/AppDir" cmake --install build
+
+          # Move /usr layout to AppDir/usr (already there from DESTDIR + prefix=/usr)
+
+          # Bring the .desktop file to the AppDir root (linuxdeploy expects it)
+          cp AppDir/usr/share/applications/mark-preview.desktop AppDir/mark-preview.desktop
+          cp AppDir/usr/share/icons/hicolor/256x256/apps/mark-preview.png AppDir/mark-preview.png
+
+          # AppRun: minimal forwarder script that picks the embedded libs.
+          cat > AppDir/AppRun <<'APPRUN'
+          #!/bin/bash
+          HERE="$(dirname "$(readlink -f "${0}")")"
+          export LD_LIBRARY_PATH="${HERE}/usr/lib:${LD_LIBRARY_PATH:-}"
+          export GDK_PIXBUF_MODULE_FILE="${HERE}/usr/lib/gdk-pixbuf-2.0/loaders.cache"
+          export GIO_MODULE_DIR="${HERE}/usr/lib/gio/modules"
+          export WEBKIT_DISABLE_DMABUF_RENDERER="${WEBKIT_DISABLE_DMABUF_RENDERER:-1}"
+          exec "${HERE}/usr/bin/mark-preview" "$@"
+          APPRUN
+          chmod +x AppDir/AppRun
+
+          # Download linuxdeploy + GTK plugin
+          curl -sSL -o linuxdeploy.AppImage \
+            https://github.com/linuxdeploy/linuxdeploy/releases/download/continuous/linuxdeploy-x86_64.AppImage
+          curl -sSL -o linuxdeploy-plugin-gtk.sh \
+            https://raw.githubusercontent.com/linuxdeploy/linuxdeploy-plugin-gtk/master/linuxdeploy-plugin-gtk.sh
+          chmod +x linuxdeploy.AppImage linuxdeploy-plugin-gtk.sh
+
+          # linuxdeploy needs the AppImages to be extracted in containerless CI
+          ./linuxdeploy.AppImage --appimage-extract >/dev/null
+          mv squashfs-root linuxdeploy
+
+          ./linuxdeploy/AppRun \
+            --appdir AppDir \
+            --plugin gtk \
+            --output appimage \
+            --desktop-file AppDir/mark-preview.desktop \
+            --icon-file AppDir/mark-preview.png
+
+          ls -la *.AppImage
+          mv mark-preview-*.AppImage mark-preview-${{ matrix.id }}.AppImage
+
+      # -------- Package: macOS tarball --------
+      - name: Package (macOS)
+        if: runner.os == 'macOS'
+        shell: bash
+        run: |
+          set -euxo pipefail
+          cd build
+          # CMake produced mark-preview.app
+          mkdir -p ../staging
+          cp -r mark-preview.app ../staging/
+          cp ../LICENSE ../README.md ../staging/
+          cd ../staging
+          tar -czf ../mark-preview-${{ matrix.id }}.tar.gz *
+
+      # -------- Package: Windows zip --------
+      - name: Package (Windows)
+        if: runner.os == 'Windows'
+        shell: bash
+        run: |
+          set -euxo pipefail
+          mkdir staging
+          cp build/Release/mark-preview.exe staging/
+          cp LICENSE README.md staging/
+          # Copy required DLLs from vcpkg installed/x64-windows/bin
+          cp "$VCPKG_ROOT/installed/x64-windows/bin/"*.dll staging/ || true
+          7z a "mark-preview-${{ matrix.id }}.zip" ./staging/*
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: mark-preview-${{ matrix.id }}
+          path: mark-preview-${{ matrix.id }}.*
+
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/v')
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+
+      - name: Flatten artifacts
+        run: |
+          mkdir -p dist
+          find artifacts -type f \( -name '*.AppImage' -o -name '*.tar.gz' -o -name '*.zip' \) \
+            -exec cp -v {} dist/ \;
+          ls -la dist/
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: dist/*
+          generate_release_notes: true
+          fail_on_unmatched_files: false

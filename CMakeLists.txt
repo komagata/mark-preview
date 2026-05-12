@@ -89,6 +89,7 @@ add_custom_target(generate_assets DEPENDS ${EMBEDDED_ASSET_HEADERS})
 
 # --- Executable --------------------------------------------------------------
 add_executable(mark-preview
+    WIN32 MACOSX_BUNDLE
     src/main.cpp
     src/MainFrame.cpp
     src/Renderer.cpp
@@ -96,6 +97,16 @@ add_executable(mark-preview
     src/Theme.cpp
     src/Resources.cpp
 )
+
+if(APPLE)
+    set_target_properties(mark-preview PROPERTIES
+        MACOSX_BUNDLE_BUNDLE_NAME           "mark-preview"
+        MACOSX_BUNDLE_BUNDLE_VERSION        "${PROJECT_VERSION}"
+        MACOSX_BUNDLE_SHORT_VERSION_STRING  "${PROJECT_VERSION}"
+        MACOSX_BUNDLE_GUI_IDENTIFIER        "org.komagata.mark-preview"
+        MACOSX_BUNDLE_COPYRIGHT             "MIT"
+    )
+endif()
 add_dependencies(mark-preview generate_assets)
 
 target_include_directories(mark-preview PRIVATE
@@ -119,13 +130,18 @@ endif()
 
 include(GNUInstallDirs)
 
-install(TARGETS mark-preview RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
-install(FILES packaging/mark-preview.desktop
-        DESTINATION ${CMAKE_INSTALL_DATADIR}/applications)
-install(FILES packaging/mark-preview.png
-        DESTINATION ${CMAKE_INSTALL_DATADIR}/icons/hicolor/256x256/apps)
-install(FILES LICENSE
-        DESTINATION ${CMAKE_INSTALL_DATADIR}/licenses/mark-preview)
+install(TARGETS mark-preview
+        RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+        BUNDLE  DESTINATION .)
+
+if(UNIX AND NOT APPLE)
+    install(FILES packaging/mark-preview.desktop
+            DESTINATION ${CMAKE_INSTALL_DATADIR}/applications)
+    install(FILES packaging/mark-preview.png
+            DESTINATION ${CMAKE_INSTALL_DATADIR}/icons/hicolor/256x256/apps)
+    install(FILES LICENSE
+            DESTINATION ${CMAKE_INSTALL_DATADIR}/licenses/mark-preview)
+endif()
 
 # --- mp-render: console-only renderer used by tests --------------------------
 add_executable(mp-render

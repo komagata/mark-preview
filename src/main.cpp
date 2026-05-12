@@ -17,9 +17,16 @@ namespace {
 // rendering a blank surface. Disabling the DMABUF renderer (but keeping
 // the accelerated compositor — needed for mouse-wheel scrolling to work)
 // fixes both issues. Users can override these env vars themselves.
+//
+// Only relevant on Linux (WebKit2GTK). macOS uses WKWebView, Windows uses
+// WebView2 — neither honors these env vars.
 struct WebKitEnv {
     WebKitEnv() {
-        setenv("WEBKIT_DISABLE_DMABUF_RENDERER", "1", /*overwrite=*/0);
+#if defined(__linux__) && !defined(_WIN32)
+        if (!std::getenv("WEBKIT_DISABLE_DMABUF_RENDERER")) {
+            setenv("WEBKIT_DISABLE_DMABUF_RENDERER", "1", 0);
+        }
+#endif
     }
 } g_webkit_env;
 } // namespace
