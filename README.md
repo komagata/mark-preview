@@ -3,6 +3,8 @@
 A simple Markdown viewer for Omarchy (Arch Linux + Hyprland). Designed to be
 portable to macOS and Windows.
 
+![mark-preview rendering its own README in dark mode](docs/screenshot.png)
+
 - **GFM** parsing via `cmark-gfm`
 - **Math** via KaTeX, **diagrams** via Mermaid, **code highlight** via highlight.js — all bundled, no network needed at runtime
 - **Auto-reload** on file changes (so you can edit in Neovim and see the result live)
