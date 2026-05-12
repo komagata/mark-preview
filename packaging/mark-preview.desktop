@@ -1,0 +1,15 @@
+[Desktop Entry]
+Type=Application
+Name=mark-preview
+GenericName=Markdown Viewer
+GenericName[ja]=Markdownビューア
+Comment=Simple viewer for Markdown files
+Comment[ja]=シンプルなMarkdownビューア
+Exec=mark-preview %f
+Icon=mark-preview
+Terminal=false
+StartupNotify=true
+StartupWMClass=mark-preview
+Categories=Office;Viewer;Utility;
+MimeType=text/markdown;text/x-markdown;
+Keywords=markdown;md;viewer;preview;

@@ -117,7 +117,15 @@ if(UNIX AND NOT APPLE)
     target_link_libraries(mark-preview PRIVATE stdc++fs)
 endif()
 
-install(TARGETS mark-preview RUNTIME DESTINATION bin)
+include(GNUInstallDirs)
+
+install(TARGETS mark-preview RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
+install(FILES packaging/mark-preview.desktop
+        DESTINATION ${CMAKE_INSTALL_DATADIR}/applications)
+install(FILES packaging/mark-preview.png
+        DESTINATION ${CMAKE_INSTALL_DATADIR}/icons/hicolor/256x256/apps)
+install(FILES LICENSE
+        DESTINATION ${CMAKE_INSTALL_DATADIR}/licenses/mark-preview)
 
 # --- mp-render: console-only renderer used by tests --------------------------
 add_executable(mp-render
