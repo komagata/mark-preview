@@ -7,16 +7,40 @@ portable to macOS and Windows.
 
 ## Install
 
-The recommended path on Arch Linux / Omarchy is the AUR package
-[`mark-preview-git`](https://aur.archlinux.org/packages/mark-preview-git):
+### Arch Linux / Omarchy (recommended)
 
 ```sh
 yay -S mark-preview-git        # or: paru -S mark-preview-git
 ```
 
-That installs `/usr/bin/mark-preview` plus a `.desktop` entry so the app
-shows up in walker / GNOME / KDE launchers and is offered as an "Open with"
-target for `.md` files.
+The AUR package
+[`mark-preview-git`](https://aur.archlinux.org/packages/mark-preview-git)
+installs `/usr/bin/mark-preview` plus a `.desktop` entry, so the app shows
+up in walker / GNOME / KDE launchers and is offered as an "Open with" target
+for `.md` files.
+
+### Pre-built binaries
+
+Grab the latest release from
+[**GitHub Releases**](https://github.com/komagata/mark-preview/releases/latest):
+
+| Platform | Asset |
+| --- | --- |
+| Linux x86_64 (any distro) | `mark-preview-linux-x86_64.AppImage` |
+| macOS (Apple Silicon)     | `mark-preview-macos-arm64.tar.gz`   |
+
+```sh
+# Linux AppImage
+chmod +x mark-preview-linux-x86_64.AppImage
+./mark-preview-linux-x86_64.AppImage path/to/foo.md
+
+# macOS
+tar -xzf mark-preview-macos-arm64.tar.gz
+open mark-preview.app
+```
+
+Intel macOS and Windows binaries are not built yet — build from source for
+those (see below).
 
 ## Features
 
