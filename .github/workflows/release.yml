@@ -63,6 +63,11 @@ jobs:
       - name: Install wxWidgets (Windows / vcpkg)
         if: runner.os == 'Windows'
         shell: bash
+        env:
+          # The GHA binary cache is not always available (e.g. for
+          # workflow_dispatch runs). Disable it so vcpkg falls back to
+          # building / downloading from upstream.
+          VCPKG_BINARY_SOURCES: "clear"
         run: |
           "$VCPKG_ROOT/vcpkg" install wxwidgets:x64-windows
 
