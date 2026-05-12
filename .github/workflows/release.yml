@@ -24,9 +24,10 @@ jobs:
           - os: macos-13
             id: macos-x86_64
             archive: tar.gz
-          - os: windows-2022
-            id: windows-x86_64
-            archive: zip
+          # Windows is intentionally left out for now: vcpkg's wxwidgets port
+          # doesn't include the webview component, so wxWebView can't be
+          # linked. Bringing it back requires building wxWidgets from source
+          # with Edge WebView2 support — tracked for a future release.
 
     runs-on: ${{ matrix.os }}
 
