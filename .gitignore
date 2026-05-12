@@ -1,0 +1,11 @@
+build/
+.cache/
+.agents/
+compile_commands.json
+
+# Downloaded by scripts/fetch-assets.sh
+assets/katex/
+assets/mermaid/
+assets/highlight/
+assets/github-light.css
+assets/github-dark.css

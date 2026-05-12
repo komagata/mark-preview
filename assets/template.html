@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="__THEME__">
+<head>
+<meta charset="UTF-8">
+<title>__TITLE__</title>
+<base href="__BASE_URL__">
+<link rel="stylesheet" href="__ASSETS_URL__/__GHMD_CSS__">
+<link rel="stylesheet" href="__ASSETS_URL__/katex/katex.min.css">
+<link rel="stylesheet" href="__ASSETS_URL__/highlight/__HLJS_CSS__">
+<style>
+html { background-color: #ffffff; overflow-y: scroll; }
+html[data-theme="dark"] { background-color: #0d1117; }
+html, body { margin: 0; padding: 0; }
+body { box-sizing: border-box; padding: 32px 48px; }
+.markdown-body { box-sizing: border-box; max-width: 980px; margin: 0 auto; }
+.mermaid { background: transparent; text-align: center; margin: 16px 0; }
+/* Force a visible scrollbar on WebKit2GTK so users see the document is scrollable. */
+::-webkit-scrollbar { width: 14px; height: 14px; }
+::-webkit-scrollbar-track { background: rgba(127,127,127,0.08); }
+::-webkit-scrollbar-thumb { background: rgba(127,127,127,0.45); border-radius: 7px; border: 3px solid transparent; background-clip: padding-box; }
+::-webkit-scrollbar-thumb:hover { background: rgba(127,127,127,0.7); border-radius: 7px; border: 3px solid transparent; background-clip: padding-box; }
+</style>
+</head>
+<body>
+<article class="markdown-body">
+__CONTENT__
+</article>
+<script>
+window.__MARK_PREVIEW__ = { theme: "__THEME__", scrollY: __SCROLL_Y__ };
+</script>
+<script src="__ASSETS_URL__/katex/katex.min.js"></script>
+<script src="__ASSETS_URL__/katex/auto-render.min.js"></script>
+<script src="__ASSETS_URL__/highlight/highlight.min.js"></script>
+<script src="__ASSETS_URL__/mermaid/mermaid.min.js"></script>
+<script src="__ASSETS_URL__/app.js"></script>
+</body>
+</html>
