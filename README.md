@@ -5,15 +5,10 @@ portable to macOS and Windows.
 
 ![mark-preview rendering its own README in dark mode](docs/screenshot.png)
 
-- **GFM** parsing via `cmark-gfm`
-- **Math** via KaTeX, **diagrams** via Mermaid, **code highlight** via highlight.js — all bundled, no network needed at runtime
-- **Auto-reload** on file changes (so you can edit in Neovim and see the result live)
-- **Light/Dark** GitHub-style themes, following the system color scheme
-- **Single binary** with all assets embedded
+## Install
 
-See [SPEC.md](SPEC.md) for the full specification.
-
-## Install (Arch / Omarchy)
+The recommended path on Arch Linux / Omarchy is the AUR package
+[`mark-preview-git`](https://aur.archlinux.org/packages/mark-preview-git):
 
 ```sh
 yay -S mark-preview-git        # or: paru -S mark-preview-git
@@ -22,6 +17,16 @@ yay -S mark-preview-git        # or: paru -S mark-preview-git
 That installs `/usr/bin/mark-preview` plus a `.desktop` entry so the app
 shows up in walker / GNOME / KDE launchers and is offered as an "Open with"
 target for `.md` files.
+
+## Features
+
+- **GFM** parsing via `cmark-gfm`
+- **Math** via KaTeX, **diagrams** via Mermaid, **code highlight** via highlight.js — all bundled, no network needed at runtime
+- **Auto-reload** on file changes (so you can edit in Neovim and see the result live)
+- **Light/Dark** GitHub-style themes, following the system color scheme
+- **Single binary** with all assets embedded
+
+See [SPEC.md](SPEC.md) for the full specification.
 
 ## Build from source
 
